@@ -2,7 +2,7 @@ version: "3.8"
 
 services: 
   pg:
-    image: shog9/barmantutorials:step04-backup
+    image: shog9/barmantutorials:step04-pg
     container_name: pg
     hostname: pg
     environment: 
