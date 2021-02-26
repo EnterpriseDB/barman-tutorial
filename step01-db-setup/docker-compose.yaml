@@ -1,0 +1,20 @@
+version: "3.8"
+
+services: 
+  pg:
+    image: shog9/barmantutorials:step01-pg
+    container_name: pg
+    hostname: pg
+    environment: 
+      POSTGRES_PASSWORD: example
+    healthcheck:
+      test: pg_isready -U postgres || exit 1
+    stop_grace_period: 1m
+    
+  backup:
+    image: shog9/barmantutorials:step01-backup
+    container_name: backup
+    hostname: backup
+    depends_on: 
+      - pg
+    command: tail -F /dev/null
