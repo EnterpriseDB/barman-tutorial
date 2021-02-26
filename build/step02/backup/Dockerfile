@@ -6,3 +6,6 @@ RUN apt-get update \
 
 CMD cron && tail -f /var/log/cron.log
 
+# kill interactive prompt for timezone when installing
+ENV TZ=Etc/UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
