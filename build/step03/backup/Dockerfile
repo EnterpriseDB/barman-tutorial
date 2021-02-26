@@ -17,5 +17,5 @@ COPY --chown=barman barman/pg /var/lib/barman/pg
 RUN chmod 0600 /var/lib/barman/.pgpass
 
 CMD cron \
-    && su - barman -c "barman receive-wal --create-slot pg; barman cron" \
+    && su - barman -c "sleep 10; barman receive-wal --create-slot pg; barman cron" \
     && tail -f /var/log/cron.log

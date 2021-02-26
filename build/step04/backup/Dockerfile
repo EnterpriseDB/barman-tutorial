@@ -20,4 +20,6 @@ RUN chmod 0600 /var/lib/barman/.pgpass
 RUN chmod 0700 /var/lib/barman/.ssh
 RUN chmod 0600 /var/lib/barman/.ssh/id_rsa
 
-CMD cron && tail -f /var/log/cron.log
+CMD cron \
+    && su - barman -c "sleep 10; barman receive-wal --create-slot pg; barman cron" \
+    && tail -f /var/log/cron.log
