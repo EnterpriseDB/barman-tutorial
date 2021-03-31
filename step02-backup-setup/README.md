@@ -3,9 +3,9 @@ docker exec -it backup /bin/bash
 
 # Installing and Configuring Barman
 
-# Installation
+In [the previous step](step01-db-setup), we configured the PostgreSQL server, creating users for Barman to connect and manage backups. In this step, we'll install and configure Barman on the backup server.
 
-This walk-through uses an Ubuntu environment, so the first step is to configure the PostgreSQL repository (details are [on the PostgreSQL wiki](https://wiki.postgresql.org/wiki/Apt))
+This demonstration uses an Ubuntu environment, so the first step is to configure the PostgreSQL repository ([details are on the PostgreSQL wiki](https://wiki.postgresql.org/wiki/Apt))
 
 1. Install prerequesite software
 
@@ -37,7 +37,7 @@ This walk-through uses an Ubuntu environment, so the first step is to configure 
     Reading package lists... Done
     ```
 
-With the repository configured, we can use apt to install the PostgreSQL client software and Barman:
+With the repository configured, we can use apt to install Barman and its dependencies:
 
 ```shell
 apt-get -y install barman
@@ -47,7 +47,7 @@ Processing triggers for systemd (245.4-4ubuntu3.4) ...
 Processing triggers for libc-bin (2.31-0ubuntu9.1) ...
 ```
 
-For more details on installation (including instructions for other supported operating systems), see: [Installation](http://docs.pgbarman.org/release/2.12/#installation) in the Barman guide.
+For more details on installation (including instructions for other supported operating systems), see [the Installation section in the Barman guide](http://docs.pgbarman.org/release/2.12/#installation).
 
 ## Configuration
 
@@ -92,7 +92,16 @@ For more details on configuration files, see: [Configuration](http://docs.pgbarm
 
 ### Verifying the configuration
 
-Now that the configuration is done, we can use Barman's check command to verify that it works:
+During installation, Barman will have installed a cron service that runs every minute to maintenance tasks. Since we only just gave it a configuration, let's make sure those tasks have run before continuing: 
+
+```shell
+barman cron
+__OUTPUT__
+Starting WAL archiving for server pg
+Starting streaming archiver for server pg
+```
+
+Now that the configuration is done and initialization has been performed, we can use Barman's check command to verify that it works:
 
 ```shell
 barman check pg

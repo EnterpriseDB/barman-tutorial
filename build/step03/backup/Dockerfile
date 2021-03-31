@@ -1,21 +1,29 @@
-FROM ubuntu:focal
+FROM shog9/barmantutorials:step02-backup
+
+ADD https://www.postgresql.org/media/keys/ACCC4CF8.asc /usr/share/keyrings/pgdg-archive-keyring
 
 RUN apt-get update \
-    && apt-get -y install lsb-release cron \
-        curl ca-certificates gnupg \
-    && touch /var/log/cron.log
-
-RUN curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN apt-get update \
+    && apt-get -y install ca-certificates gnupg ssh openssh-server \
+    && gpg --dearmor /usr/share/keyrings/pgdg-archive-keyring \
+    && rm /usr/share/keyrings/pgdg-archive-keyring \
+    && echo "deb [signed-by=/usr/share/keyrings/pgdg-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get update \
     && apt-get -y install barman \
-    && apt-get clean 
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/*
 
 COPY pg.conf /etc/barman.d/pg.conf
 COPY --chown=barman barman/.pgpass /var/lib/barman/
-COPY --chown=barman barman/pg /var/lib/barman/pg
 RUN chmod 0600 /var/lib/barman/.pgpass
 
-CMD cron \
-    && su - barman -c "sleep 10; barman receive-wal --create-slot pg; barman cron" \
-    && tail -f /var/log/cron.log
+COPY --chown=barman barman/pg.tar.gz /var/lib/barman/
+COPY --chown=barman .ssh /var/lib/barman/.ssh
+RUN chmod 0700 /var/lib/barman/.ssh
+RUN chmod 0600 /var/lib/barman/.ssh/id_rsa /var/lib/barman/.ssh/authorized_keys
+
+COPY step03-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/step03-entrypoint.sh
+
+ENTRYPOINT ["step03-entrypoint.sh"]
+CMD tail -f /var/log/cron.log
