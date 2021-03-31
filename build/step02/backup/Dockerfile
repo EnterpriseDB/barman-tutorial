@@ -1,11 +1,10 @@
-FROM ubuntu:focal
+FROM shog9/barmantutorials:step01-backup
 
 RUN apt-get update \
     && apt-get -y install lsb-release cron \
-    && touch /var/log/cron.log
+    && touch /var/log/cron.log\
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/*
 
 CMD cron && tail -f /var/log/cron.log
-
-# kill interactive prompt for timezone when installing
-ENV TZ=Etc/UTC
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone

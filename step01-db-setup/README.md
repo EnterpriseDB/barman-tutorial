@@ -3,11 +3,31 @@ docker exec -it -u postgres pg /bin/bash
 
 ## Database Server Configuration
 
-We'll start by configuring the database itself to allow streaming replication. For this, we need two things:
+For Barman to back up this server, a few things need to be done to prepare it:
 
-1. A dedicated superuser for Barman to connect as
-2. A dedicated streaming user with the replication attribute and remote login permissions
-3. Free replication slots
+1. Installing the Barman CLI tools
+2. Creating a dedicated superuser for Barman to connect as
+3. Creating a dedicated streaming user with the replication attribute and remote login permissions
+4. Ensuring there are free replication slots
+
+### Barman CLI installation
+
+We'll start by installing the barman-cli package: this contains the `barman-wal-archive` and `barman-wal-restore` commands that will be used to transmit data to and from our backup server.
+
+Since PostgreSQL is already installed, the PostgreSQL apt repository is already configured and we can just request the package:
+
+```shell
+sudo apt-get update
+sudo apt-get -y install barman-cli
+__OUTPUT__
+...
+Setting up barman-cli-cloud (2.12-1.pgdg100+1) ...
+Processing triggers for ca-certificates (20200601~deb10u2) ...
+Updating certificates in /etc/ssl/certs...
+0 added, 0 removed; done.
+Running hooks in /etc/ca-certificates/update.d...
+done.
+```
 
 ### User provisioning
 
@@ -42,6 +62,7 @@ We'll also need to edit `pg_hba.conf` to allow the streaming user to connect fro
 
 ```shell
 sed -i '$ a host   replication    streaming_barman   all md5' /var/lib/postgresql/data/pg_hba.conf
+cat /var/lib/postgresql/data/pg_hba.conf
 __OUTPUT__
 ...
 local   replication     all                                     trust
@@ -54,7 +75,11 @@ host   replication    streaming_barman   all md5
 
 ### Database settings for streaming
 
-We'll also need to make sure there are replication slots available, and that PostgreSQL will allow another sender to connect. The default for both of these (for PostgreSQL 10 and above) is 10:
+We'll also need to make sure there are replication slots available, and that PostgreSQL will allow another sender to connect. We'll use psql to check the current settings:
+
+```shell
+psql -d pagila
+```
 
 ```sql
 Show max_wal_senders;
@@ -71,7 +96,7 @@ __OUTPUT__
 (1 row)
 ```
 
-...So we're fine - but if we needed more (or if they'd been previously set to 0, thus [disabling replication](https://www.postgresql.org/docs/current/runtime-config-replication.html)) then we'd need to increase them.
+The default for both of these (for PostgreSQL 10 and above) is 10, so we're fine - but if we needed more (or if they'd been previously set to 0, thus [disabling replication](https://www.postgresql.org/docs/current/runtime-config-replication.html)) then we'd need to increase them.
 
 
 ### Gazing fondly at data
@@ -80,6 +105,7 @@ Before we end, let's query some data - this is what we're going to back up!
 
 ```sql
 select * from actor where last_name='KILMER';
+\q
 __OUTPUT__
  actor_id | first_name | last_name |      last_update       
 ----------+------------+-----------+------------------------
