@@ -23,7 +23,7 @@ RUN chmod 0700 /var/lib/barman/.ssh
 RUN chmod 0600 /var/lib/barman/.ssh/id_rsa /var/lib/barman/.ssh/authorized_keys
 
 # don't allow running barman until entrypoint script has completed initialization
-COPY initcheck.sh /usr/local/bin/barman
+COPY initcheck-barman.sh /usr/local/bin/barman
 RUN chmod +x /usr/local/bin/barman
 
 COPY step03-entrypoint.sh /usr/local/bin/
