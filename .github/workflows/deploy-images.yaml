@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        step: [1, 2]
+        step: [1, 2, 3, 4]
         environment: [backup, pg]
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
