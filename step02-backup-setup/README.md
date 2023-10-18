@@ -7,35 +7,38 @@ In [the previous step](step01-db-setup), we configured the PostgreSQL server, cr
 
 This demonstration uses an Ubuntu environment, so the first step is to configure the PostgreSQL repository ([details are on the PostgreSQL wiki](https://wiki.postgresql.org/wiki/Apt))
 
-1. Install prerequesite software
+1. Install the postgresql-common package and other prerequesite software
 
     ```shell
-    apt-get update
-    apt-get install -y curl ca-certificates gnupg 
+    apt update
+    apt install -y postgresql-common curl ca-certificates gnupg
     __OUTPUT__
     ...
-    done
+    done.
     ```
-2. Add PostgreSQL's authentication key
+2. Use the script included in postgresql-common to configure the PGDG repository
 
     ```shell
-    curl https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
+    sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh 
     __OUTPUT__
-    % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                    Dload  Upload   Total   Spent    Left  Speed
-    100  4812  100  4812    0     0  24426      0 --:--:-- --:--:-- --:--:-- 24426
-    OK    
-    ```
+    This script will enable the PostgreSQL APT repository on apt.postgresql.org on
+    your system. The distribution codename used will be jammy-pgdg.
 
-3. Add the PostgreSQL repository to the list of sources, and update available packages
-
-    ```shell
-    sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-    apt-get update
-    __OUTPUT__
+    Press Enter to continue, or Ctrl-C to abort.
     ...
-    Reading package lists... Done
     ```
+
+   (Do press Enter at this point)
+
+   ```output
+   Reading package lists... Done
+
+   You can now start installing packages from apt.postgresql.org.
+
+   Have a look at https://wiki.postgresql.org/wiki/Apt for more information;
+   most notably the FAQ at https://wiki.postgresql.org/wiki/Apt/FAQ
+   ```
+
 
 With the repository configured, we can use apt to install Barman and its dependencies:
 
@@ -171,4 +174,4 @@ Server pg:
 ```
 
 
-Continue on with [Step #3: Running Backups](step03-backup).
+Continue on with [Step #3: Running Backups](../step03-backup/README.md).

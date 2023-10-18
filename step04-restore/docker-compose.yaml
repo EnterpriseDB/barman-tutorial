@@ -2,7 +2,7 @@ version: "3.8"
 
 services: 
   pg:
-    image: shog9/barmantutorials:step04-pg
+    image: ghcr.io/enterprisedb/barman-tutorial:step04-pg
     container_name: pg
     hostname: pg
     environment: 
@@ -12,7 +12,7 @@ services:
     stop_grace_period: 1m
     
   backup:
-    image: shog9/barmantutorials:step04-backup
+    image: ghcr.io/enterprisedb/barman-tutorial:step04-backup
     container_name: backup
     hostname: backup
     depends_on: 

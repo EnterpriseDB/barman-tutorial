@@ -1,4 +1,4 @@
-FROM shog9/barmantutorials:step02-backup
+FROM ghcr.io/enterprisedb/barman-tutorial:step02-backup
 
 ADD https://www.postgresql.org/media/keys/ACCC4CF8.asc /usr/share/keyrings/pgdg-archive-keyring
 
