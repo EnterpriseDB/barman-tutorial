@@ -6,7 +6,7 @@ RUN apt-get update \
     && apt-get -y install ca-certificates gnupg ssh openssh-server \
     && gpg --dearmor /usr/share/keyrings/pgdg-archive-keyring \
     && rm /usr/share/keyrings/pgdg-archive-keyring \
-    && echo "deb [signed-by=/usr/share/keyrings/pgdg-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt focal-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && echo "deb [signed-by=/usr/share/keyrings/pgdg-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
     && apt-get update \
     && apt-get -y install barman \
     && apt-get clean \
