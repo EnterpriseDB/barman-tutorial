@@ -20,7 +20,7 @@ This tutorial provides a quick walk-through of setting up a backup and recovery 
     docker exec -it -u postgres pg /bin/bash
     ```
 
-2. Follow the instructions in [step01-db-setup/README.md](step01-db-setup/README.md)
+2. Follow the instructions in step01-db-setup/README.md
 
 3. Run:
 
@@ -39,7 +39,7 @@ This tutorial provides a quick walk-through of setting up a backup and recovery 
     docker exec -it backup /bin/bash
     ```
 
-2. Follow the instructions in [step02-backup-setup/README.md](step02-backup-setup/README.md)
+2. Follow the instructions in step02-backup-setup/README.md
 
 3. Run:
 
@@ -58,7 +58,7 @@ This tutorial provides a quick walk-through of setting up a backup and recovery 
     docker exec -it -u barman backup /bin/bash
     ```
 
-2. Follow the instructions in [step03-backup/README.md](step03-backup/README.md)
+2. Follow the instructions in step03-backup/README.md
 
 3. Run:
 
@@ -77,7 +77,7 @@ This tutorial provides a quick walk-through of setting up a backup and recovery 
     docker exec -it -u barman backup /bin/bash
     ```
 
-2. Follow the instructions in [step04-restore/README.md](step04-restore/README.md)
+2. Follow the instructions in step04-restore/README.md
 
 3. Run:
 
@@ -92,20 +92,14 @@ This tutorial provides a quick walk-through of setting up a backup and recovery 
 The build system is quite simplistic: two scripts under ./build 
 
 1. `build/build-images.sh` will build and tag the 8 images used by the Compose files under step01-step04. Changes can then be tested locally.
-2. `build/push-images.sh` will push these images up to Github. 
-
-Normally you shouldn't have to run the push script - once you've built and verified the images locally, check in and push your changes and Github Actions will rebuild and push the new images.
+2. `build/push-images.sh` will push these images up to Docker Hub. Note that this currently requires you to be... Me. 
 
 If changes are made to the scenario steps that affect the intermediate backups in steps #2 or #3, you'll need to create new archives of the `pg` backup directory at the conclusion of BOTH steps #2 and #3. 
 
 ```shell
-# from within container
 tar cvfz pg.tar.gz -C ~ pg
 ```
 
 Then copy that archive into the build directory for the next steps (`build/step03/backup/barman` and `build/step04/backup/barman` respectively).
 
-```shell
-# from host (after step #2 but before cleanup)
-docker cp backup:/var/lib/barman/pg.tar.gz build/step03/backup/barman
-```
+I still need to take time to automate this a bit more :)

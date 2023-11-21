@@ -1,4 +1,4 @@
-FROM ghcr.io/enterprisedb/barman-tutorial:step01-backup
+FROM shog9/barmantutorials:step01-backup
 
 RUN apt-get update \
     && apt-get -y install lsb-release cron \

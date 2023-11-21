@@ -1,4 +1,4 @@
-FROM ghcr.io/enterprisedb/barman-tutorial:step03-backup
+FROM shog9/barmantutorials:step03-backup
 
 COPY --chown=barman barman/pg.tar.gz /var/lib/barman/
 
