@@ -1,1 +1,1 @@
-FROM shog9/barmantutorials:step02-pg
+FROM ghcr.io/enterprisedb/barman-tutorial:step02-pg

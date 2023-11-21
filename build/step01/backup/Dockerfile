@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 # suppress interactive prompt for timezone when installing
 ENV TZ=Etc/UTC

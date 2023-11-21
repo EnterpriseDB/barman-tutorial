@@ -1,4 +1,4 @@
-FROM postgres:13
+FROM postgres:15
 
 ENV POSTGRES_DB=pagila
 ADD --chown=postgres https://raw.githubusercontent.com/devrimgunduz/pagila/master/pagila-schema.sql /docker-entrypoint-initdb.d/01-pagila-schema.sql
