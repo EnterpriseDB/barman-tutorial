@@ -21,7 +21,7 @@ Ok, I just didn't populate the data for this step, in order to demonstrate a tot
 ```shell
 barman list-backup pg
 __OUTPUT__
-pg 20231018T054305 - Wed Oct 18 05:43:09 2023 - Size: 69.5 MiB - WAL Size: 0 B
+pg 20240117T052502 - Wed Jan 17 05:25:21 2024 - Size: 54.1 MiB - WAL Size: 0 B
 ```
 
 Let's instruct Barman to ssh into the database server and restore the backup. 
@@ -29,7 +29,7 @@ Let's instruct Barman to ssh into the database server and restore the backup.
 1. Connect to pg and shut down the database cluster:
 
     ```shell
-    ssh postgres@pg /usr/lib/postgresql/15/bin/pg_ctl \
+    ssh postgres@pg /usr/lib/postgresql/16/bin/pg_ctl \
         --pgdata=/var/lib/postgresql/data stop
     __OUTPUT__
     waiting for server to shut down.... done
@@ -44,14 +44,14 @@ Let's instruct Barman to ssh into the database server and restore the backup.
         && rm -rf /var/lib/postgresql/data/*"
     ```
 
-3. Use [Barman's recover command](http://docs.pgbarman.org/release/2.12/#recover) to connect to pg and restore the latest backup 
+3. Use [Barman's recover command](http://docs.pgbarman.org/release/3.9.0/#recover) to connect to pg and restore the latest backup 
 
     ```shell
     barman recover --remote-ssh-command 'ssh postgres@pg' \
             pg latest \
             /var/lib/postgresql/data
     __OUTPUT__
-    Starting remote restore for server pg using backup 20231018T054305
+    Starting remote restore for server pg using backup 20240117T052502
     Destination directory: /var/lib/postgresql/data
     Remote command: ssh postgres@pg
     Copying the base backup.
@@ -59,7 +59,7 @@ Let's instruct Barman to ssh into the database server and restore the backup.
     Generating archive status files
     Identify dangerous settings in destination directory.
 
-    Recovery completed (start time: 2023-10-18 05:48:52.095585+00:00, elapsed time: 3 seconds)
+    Recovery completed (start time: 2024-01-17 05:35:04.908923+00:00, elapsed time: 3 seconds)
     Your PostgreSQL server has been successfully prepared for recovery!
     ```
 
@@ -68,24 +68,24 @@ Let's instruct Barman to ssh into the database server and restore the backup.
 4. Restart the server:
 
     ```shell
-    ssh postgres@pg "/usr/lib/postgresql/15/bin/pg_ctl \
+    ssh postgres@pg "/usr/lib/postgresql/16/bin/pg_ctl \
         --pgdata=/var/lib/postgresql/data \
         -l /var/log/postgresql/pg.log \
         start \
-        ; tail /var/log/postgresql/pg.log"
+        ; timeout 3 tail -f /var/log/postgresql/pg.log"
     __OUTPUT__
     waiting for server to start.... done
     server started
-    2023-10-18 05:28:59.307 UTC [361] LOG:  listening on IPv4 address "0.0.0.0", port 5432
-    2023-10-18 05:28:59.307 UTC [361] LOG:  listening on IPv6 address "::", port 5432
-    2023-10-18 05:28:59.311 UTC [361] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
-    2023-10-18 05:28:59.318 UTC [364] LOG:  database system was interrupted; last known up at 2023-10-18 05:16:43 UTC
-    2023-10-18 05:28:59.922 UTC [364] LOG:  redo starts at 0/3000028
-    2023-10-18 05:28:59.922 UTC [364] LOG:  consistent recovery state reached at 0/3000100
-    2023-10-18 05:28:59.922 UTC [364] LOG:  redo done at 0/4000060 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
-    2023-10-18 05:28:59.944 UTC [362] LOG:  checkpoint starting: end-of-recovery immediate wait
-    2023-10-18 05:28:59.962 UTC [362] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 2 recycled; write=0.003 s, sync=0.002 s, total=0.020 s; sync files=2, longest=0.001 s, average=0.001 s; distance=32768 kB, estimate=32768 kB
-    2023-10-18 05:28:59.967 UTC [361] LOG:  database system is ready to accept connections
+    2024-01-17 05:36:00.491 UTC [292] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+    2024-01-17 05:36:00.491 UTC [292] LOG:  listening on IPv6 address "::", port 5432
+    2024-01-17 05:36:00.497 UTC [292] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+    2024-01-17 05:36:00.504 UTC [295] LOG:  database system was interrupted; last known up at 2024-01-17 05:25:16 UTC
+    2024-01-17 05:36:01.016 UTC [295] LOG:  redo starts at 0/4000028
+    2024-01-17 05:36:01.021 UTC [295] LOG:  consistent recovery state reached at 0/4000100
+    2024-01-17 05:36:01.021 UTC [295] LOG:  redo done at 0/4000100 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+    2024-01-17 05:36:01.066 UTC [293] LOG:  checkpoint starting: end-of-recovery immediate wait
+    2024-01-17 05:36:01.106 UTC [293] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.010 s, sync=0.004 s, total=0.045 s; sync files=2, longest=0.003 s, average=0.002 s; distance=16384 kB, estimate=16384 kB; lsn=0/5000028, redo lsn=0/5000028
+    2024-01-17 05:36:01.116 UTC [292] LOG:  database system is ready to accept connections
     ```
 
 Now we should be able to reconnect to the database:
@@ -93,7 +93,7 @@ Now we should be able to reconnect to the database:
 ```shell
 psql -h pg -d pagila -U barman
 __OUTPUT__
-psql (16.0 (Ubuntu 16.0-1.pgdg20.04+1), server 15.4 (Debian 15.4-2.pgdg120+1))
+psql (16.1 (Ubuntu 16.1-1.pgdg22.04+1))
 Type "help" for help.
 
 pagila=# 
@@ -107,11 +107,11 @@ select * from actor where last_name='KILMER';
 __OUTPUT__
  actor_id | first_name | last_name |      last_update       
 ----------+------------+-----------+------------------------
-       23 | SANDRA     | KILMER    | 2020-02-15 09:34:33+00
-       45 | REESE      | KILMER    | 2020-02-15 09:34:33+00
-       55 | FAY        | KILMER    | 2020-02-15 09:34:33+00
-      153 | MINNIE     | KILMER    | 2020-02-15 09:34:33+00
-      162 | OPRAH      | KILMER    | 2020-02-15 09:34:33+00
+       23 | SANDRA     | KILMER    | 2022-02-15 09:34:33+00
+       45 | REESE      | KILMER    | 2022-02-15 09:34:33+00
+       55 | FAY        | KILMER    | 2022-02-15 09:34:33+00
+      153 | MINNIE     | KILMER    | 2022-02-15 09:34:33+00
+      162 | OPRAH      | KILMER    | 2022-02-15 09:34:33+00
 (5 rows)
 ```
 
@@ -122,7 +122,7 @@ Let's try this recovery process again:
 1. Connect to pg and shut down the database cluster:
 
     ```shell
-    ssh postgres@pg /usr/lib/postgresql/15/bin/pg_ctl \
+    ssh postgres@pg /usr/lib/postgresql/16/bin/pg_ctl \
         --pgdata=/var/lib/postgresql/data stop
     __OUTPUT__
     waiting for server to shut down.... done
@@ -141,13 +141,14 @@ Let's try this recovery process again:
     ```shell
     barman recover --remote-ssh-command 'ssh postgres@pg' \
             --get-wal \
+            --target-tli current \
             pg latest \
             /var/lib/postgresql/data
     __OUTPUT__
-    Starting remote restore for server pg using backup 20231018T054305
+    Starting remote restore for server pg using backup 20240117T052502
     Destination directory: /var/lib/postgresql/data
     Remote command: ssh postgres@pg
-    Using safe horizon time for smart rsync copy: 2023-10-18 05:16:43.432672+00:00
+    Using safe horizon time for smart rsync copy: 2024-01-17 05:25:02.456655+00:00
     Copying the base backup.
     Generating recovery configuration
     Identify dangerous settings in destination directory.
@@ -156,31 +157,41 @@ Let's try this recovery process again:
     Before you start up the PostgreSQL server, please review the postgresql.auto.conf file
     inside the target directory. Make sure that 'restore_command' can be executed by the PostgreSQL user.
 
-    Recovery completed (start time: 2023-10-18 05:49:44.893295+00:00, elapsed time: 3 seconds)
+    Recovery completed (start time: 2024-01-17 05:38:07.678341+00:00, elapsed time: 3 seconds)
     Your PostgreSQL server has been successfully prepared for recovery!
     ```
 
 4. Restart the server:
 
     ```shell
-    ssh postgres@pg "/usr/lib/postgresql/15/bin/pg_ctl \
+    ssh postgres@pg "/usr/lib/postgresql/16/bin/pg_ctl \
         --pgdata=/var/lib/postgresql/data \
         -l /var/log/postgresql/pg.log \
         start \
-        ; tail /var/log/postgresql/pg.log"
+        ; timeout 5 tail -f /var/log/postgresql/pg.log"
     __OUTPUT__
-    waiting for server to start...... done
+    waiting for server to start..... done
     server started
-    2023-10-18 05:51:52.439 UTC [501] LOG:  starting archive recovery
-    2023-10-18 05:51:52.906 UTC [501] LOG:  restored log file "000000010000000000000003" from archive
-    2023-10-18 05:51:52.933 UTC [501] LOG:  redo starts at 0/3000028
-    2023-10-18 05:51:53.417 UTC [501] LOG:  restored log file "000000010000000000000004" from archive
-    2023-10-18 05:51:54.046 UTC [501] LOG:  restored log file "000000010000000000000005" from archive
-    2023-10-18 05:51:54.068 UTC [501] LOG:  consistent recovery state reached at 0/3000100
-    2023-10-18 05:51:54.068 UTC [498] LOG:  database system is ready to accept read-only connections
-    2023-10-18 05:51:54.077 UTC [501] LOG:  invalid record length at 0/50ACF38: wanted 24, got 0
-    2023-10-18 05:51:54.077 UTC [501] LOG:  redo done at 0/50ACF00 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 1.14 s
-    2023-10-18 05:51:54.077 UTC [501] LOG:  last completed transaction was at log time 2023-10-18 05:43:44.343455+00
+    2024-01-17 05:41:15.492 UTC [555] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+    2024-01-17 05:41:15.497 UTC [558] LOG:  database system was interrupted; last known up at 2024-01-17 05:25:16 UTC
+    2024-01-17 05:41:15.778 UTC [558] LOG:  starting archive recovery
+    2024-01-17 05:41:16.359 UTC [558] LOG:  restored log file "000000010000000000000004" from archive
+    2024-01-17 05:41:16.403 UTC [558] LOG:  redo starts at 0/4000028
+    2024-01-17 05:41:17.024 UTC [558] LOG:  restored log file "000000010000000000000005" from archive
+    2024-01-17 05:41:17.059 UTC [558] LOG:  consistent recovery state reached at 0/4000100
+    2024-01-17 05:41:17.059 UTC [558] LOG:  invalid resource manager ID 112 at 0/5000150
+    2024-01-17 05:41:17.059 UTC [558] LOG:  redo done at 0/50000D8 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.65 s
+    2024-01-17 05:41:17.059 UTC [555] LOG:  database system is ready to accept read-only connections
+    2024-01-17 05:41:18.206 UTC [558] LOG:  restored log file "000000010000000000000005" from archive
+    ERROR: WAL file '00000002.history' not found in server 'pg' (SSH host: 172.21.0.2)
+    ERROR: Remote 'barman get-wal' command has failed!
+    2024-01-17 05:41:19.204 UTC [558] LOG:  selected new timeline ID: 2
+    ERROR: WAL file '00000001.history' not found in server 'pg' (SSH host: 172.21.0.2)
+    ERROR: Remote 'barman get-wal' command has failed!
+    2024-01-17 05:41:20.385 UTC [558] LOG:  archive recovery complete
+    2024-01-17 05:41:20.388 UTC [556] LOG:  checkpoint starting: end-of-recovery immediate wait
+    2024-01-17 05:41:20.410 UTC [556] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 1 recycled; write=0.006 s, sync=0.002 s, total=0.025 s; sync files=2, longest=0.002 s, average=0.001 s; distance=16384 kB, estimate=16384 kB; lsn=0/5000150, redo lsn=0/5000150
+    2024-01-17 05:41:20.412 UTC [555] LOG:  database system is ready to accept connections
     ```
 
 !!! Note about those errors...
@@ -195,13 +206,13 @@ Now check the data again:
 psql -h pg -d pagila -U barman -c \
     "select * from actor where last_name='KILMER'"
 __OUTPUT__
- actor_id | first_name | last_name |          last_update          
+actor_id | first_name | last_name |          last_update          
 ----------+------------+-----------+-------------------------------
-       45 | REESE      | KILMER    | 2020-02-15 09:34:33+00
-       55 | FAY        | KILMER    | 2020-02-15 09:34:33+00
-      153 | MINNIE     | KILMER    | 2020-02-15 09:34:33+00
-      162 | OPRAH      | KILMER    | 2020-02-15 09:34:33+00
-       23 | ALOYSIUS   | KILMER    | 2021-03-30 04:06:55.101099+00
+       45 | REESE      | KILMER    | 2022-02-15 09:34:33+00
+       55 | FAY        | KILMER    | 2022-02-15 09:34:33+00
+      153 | MINNIE     | KILMER    | 2022-02-15 09:34:33+00
+      162 | OPRAH      | KILMER    | 2022-02-15 09:34:33+00
+       23 | ALOYSIUS   | KILMER    | 2024-01-17 05:28:34.621217+00
 (5 rows)
 ```
 

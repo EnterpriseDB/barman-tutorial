@@ -99,7 +99,8 @@ Normally you shouldn't have to run the push script - once you've built and verif
 If changes are made to the scenario steps that affect the intermediate backups in steps #2 or #3, you'll need to create new archives of the `pg` backup directory at the conclusion of BOTH steps #2 and #3. 
 
 ```shell
-# from within container
+# from within container (as barman user)
+cd ~
 tar cvfz pg.tar.gz -C ~ pg
 ```
 

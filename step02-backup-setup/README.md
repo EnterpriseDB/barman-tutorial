@@ -46,11 +46,11 @@ With the repository configured, we can use apt to install Barman and its depende
 apt-get -y install barman
 __OUTPUT__
 ...
-Processing triggers for systemd (245.4-4ubuntu3.4) ...
-Processing triggers for libc-bin (2.31-0ubuntu9.1) ...
+Removing obsolete dictionary files:
+Processing triggers for libc-bin (2.35-0ubuntu3.6) ...
 ```
 
-For more details on installation (including instructions for other supported operating systems), see [the Installation section in the Barman guide](http://docs.pgbarman.org/release/2.12/#installation).
+For more details on installation (including instructions for other supported operating systems), see [the Installation section in the Barman guide](http://docs.pgbarman.org/release/3.9.0/#installation).
 
 ## Configuration
 
@@ -69,12 +69,14 @@ create_slot = auto
 EOF
 ```
 
-Note that this references the users (`barman` and `streaming_barman`) that we created [in step #1 - Database Server Configuration](../step01-db-setup/). Also of interest is the value for `slot_name` - this is a replication slot that will also have to be created on the server - but we can instruct Barman to do that for us by setting `create_slot` to `auto`.
+Note that this references the users (`barman` and `streaming_barman`) that we created [in step #1 - Database Server Configuration](step01-db-setup/). Also of interest is the value for `slot_name`: this is a replication slot that will also have to be created on the server, but we instruct Barman to do that for us by setting `create_slot` to `auto`.
 
 The installation process created a brand-new barman user on the backup server, so let's switch to that for the rest of this:
 
 ```shell
 su - barman
+__OUTPUT__
+barman@backup:~$
 ```
 
 ### PostgreSQL Connection Password File
@@ -91,7 +93,7 @@ chmod 0600 ~/.pgpass
 
 Note the change in permissions - this is necessary to protect the visibility of the file, and PostgreSQL will not use it unless permissions are restricted.
 
-For more details on configuration files, see: [Configuration](http://docs.pgbarman.org/release/2.12/#configuration) in the pgBarman guide.
+For more details on configuration files, see: [Configuration](http://docs.pgbarman.org/release/3.9.0/#configuration) in the pgBarman guide.
 
 ### Verifying the configuration
 
@@ -144,7 +146,7 @@ Processing xlog segments from streaming for pg
         000000010000000000000002
 ```
 This forces WAL rotation and (with the `--archive` option) waits for the WAL to arrive. We'll give it 60 seconds (with the `--archive-timeout` option) to complete; 
-if it doesn't complete within that amount of time, try again. For more detail on these commands and their options, refer to [the Barman man page](https://docs.pgbarman.org/release/2.12/barman.1.html#commands).
+if it doesn't complete within that amount of time, try again. For more detail on these commands and their options, refer to [the Barman man page](https://docs.pgbarman.org/release/3.9.0/barman.1.html#commands).
 
 Once switch-wal has completed successfully, run the check again and you should see all checks passing:
 
