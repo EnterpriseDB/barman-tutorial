@@ -86,15 +86,23 @@ In order for Barman to connect via the user specified, we'll need to add the pas
 
 ```shell
 cat <<'EOF' >>~/.pgpass
-pg:*:*:barman:example-password
-pg:*:*:streaming_barman:example-password
+pg:5432:*:barman:example-password
+pg:5432:replication:streaming_barman:example-password
 EOF
 chmod 0600 ~/.pgpass
 ```
 
-Note the change in permissions - this is necessary to protect the visibility of the file, and PostgreSQL will not use it unless permissions are restricted.
+Each line in the `.pgpass` file need to follow below format:
+```
+[db_host]:[db_port]:[db_name]:[db_user]:[db_password]
+```
+Also note that the database name [db_name] for the barman streaming user MUST be `replication`
 
+**Note the change in permissions** - this is necessary to protect the visibility of the file, and PostgreSQL will not use it unless permissions are restricted.
+
+!!! Tip Further reading
 For more details on configuration files, see: [Configuration](http://docs.pgbarman.org/release/3.9.0/#configuration) in the pgBarman guide.
+!!!
 
 ### Verifying the configuration
 
