@@ -24,7 +24,26 @@ __OUTPUT__
 pg 20240117T052502 - Wed Jan 17 05:25:21 2024 - Size: 54.1 MiB - WAL Size: 0 B
 ```
 
-Let's instruct Barman to ssh into the database server and restore the backup. 
+Before we do anything else, let's make sure our current backup doesn't get touched by stopping barman's streaming archiver. If we start restoring backups without doing this, there's a chance we could start injesting WAL files that conflict with those we've already recieved; while Barman works with PostgreSQL to try to avoid this, there's still a chance of something going wrong, so better safe than sorry:
+
+1. Disable barman's cron job by renaming the file:
+
+   ```shell
+   sudo mv /etc/cron.d/barman /etc/cron.d/barman.bak
+   ```
+
+   !!! Note "Other cron jobs"
+   In a real-world situation, you might have other cron jobs that you'd want to disable here,
+   for instance a job that runs `barman backup`.
+   !!!
+2. Stop the running recieve-wal client (if one exists)
+   ```shell
+   barman receive-wal --stop pg
+   ```
+   (If you see a "no such process" error here, that's fine - just means the process wasn't currently running.)
+
+With that done, let's instruct Barman to ssh into the database server and restore the backup. 
+
 
 1. Connect to pg and shut down the database cluster:
 
@@ -44,7 +63,7 @@ Let's instruct Barman to ssh into the database server and restore the backup.
         && rm -rf /var/lib/postgresql/data/*"
     ```
 
-3. Use [Barman's recover command](http://docs.pgbarman.org/release/3.9.0/#recover) to connect to pg and restore the latest backup 
+3. Use [Barman's recover command](http://docs.pgbarman.org/release/3.9.0/#recover) to connect to pg and restore the latest base backup 
 
     ```shell
     barman recover --remote-ssh-command 'ssh postgres@pg' \
@@ -54,6 +73,7 @@ Let's instruct Barman to ssh into the database server and restore the backup.
     Starting remote restore for server pg using backup 20240117T052502
     Destination directory: /var/lib/postgresql/data
     Remote command: ssh postgres@pg
+    Using safe horizon time for smart rsync copy: 2024-01-17 05:25:02.456655+00:00
     Copying the base backup.
     Copying required WAL segments.
     Generating archive status files
@@ -161,6 +181,10 @@ Let's try this recovery process again:
     Your PostgreSQL server has been successfully prepared for recovery!
     ```
 
+    The new options here are `--get-wal` and `--target-tli`
+    - `--get-wal` configures PostgreSQL to fetch necessary WAL files via Barman's `get-wal` command *and also passes the `--partial` option to `get-wal`* - this gives us our best shot at being able to recover data that was successfully streamed to Barman but not part of a complete WAL file.
+    - `--target-tli current` specifies that we want the timeline that was current when we took our base backup. That's also the only timeline we have, so this isn't *strictly* necessary... But in real-world situations we might need to be precise here - it's a good habit to get into.
+
 4. Restart the server:
 
     ```shell
@@ -195,10 +219,17 @@ Let's try this recovery process again:
     ```
 
 !!! Note about those errors...
-    You may notice two lines starting with "ERROR:" mid-way through the recovery log. They're fine - that's just PostgreSQL scanning to make sure it has the most recent timeline.
-    By going through this recovery, we've actually created a *new* timeline - in fact, if you were to run through the four steps above again, you'd see that now `00000002.history` is found and PostgreSQL goes looking for `00000003.history`... Try it!
+You may notice a few lines starting with "ERROR:" mid-way through the recovery log. They're fine - that's just PostgreSQL scanning to make sure it has the most recent timeline.
+By going through this recovery, we've actually created a *new* timeline - note the message,
 
-    For more on PostgreSQL backup timelines, see [Continuous Archiving in the PostgreSQL documentation](https://www.postgresql.org/docs/current/continuous-archiving.html#BACKUP-TIMELINES).
+> LOG:  selected new timeline ID: 2
+
+If you were to take another backup (`barman backup pg --wait`) and then run through the four steps above again, you'd see that now `00000002.history` is found and PostgreSQL goes looking for `00000003.history`... Try it!
+
+These "timelines" help avoid a situation where you might inadvertently lose data doing a Point-In-Time Recovery (PITR) with backups running. While we disabled barman's streaming archiver at the outset [to avoid a particular pitfall](https://github.com/EnterpriseDB/barman/issues/542), in practice you'll likely want to get your database back into operation *with backups* fairly quickly.
+
+For more on PostgreSQL timelines, see [Continuous Archiving in the PostgreSQL documentation](https://www.postgresql.org/docs/current/continuous-archiving.html#BACKUP-TIMELINES).
+!!!
 
 Now check the data again:
 

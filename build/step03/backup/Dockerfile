@@ -3,10 +3,8 @@ FROM ghcr.io/enterprisedb/barman-tutorial:step02-backup
 ADD https://www.postgresql.org/media/keys/ACCC4CF8.asc /usr/share/keyrings/pgdg-archive-keyring
 
 RUN apt-get update \
-    && apt-get -y install ca-certificates gnupg ssh openssh-server \
-    && gpg --dearmor /usr/share/keyrings/pgdg-archive-keyring \
-    && rm /usr/share/keyrings/pgdg-archive-keyring \
-    && echo "deb [signed-by=/usr/share/keyrings/pgdg-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main" > /etc/apt/sources.list.d/pgdg.list \
+    && apt-get -y install postgresql-common curl ca-certificates gnupg ssh openssh-server \
+    && echo | /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh \
     && apt-get update \
     && apt-get -y install barman \
     && apt-get clean \
@@ -28,6 +26,8 @@ RUN chmod +x /usr/local/bin/barman
 
 COPY step03-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/step03-entrypoint.sh
+
+RUN usermod -a -G sudo barman 
 
 ENTRYPOINT ["step03-entrypoint.sh"]
 CMD tail -f /var/log/cron.log

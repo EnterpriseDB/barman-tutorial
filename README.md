@@ -36,7 +36,7 @@ This tutorial provides a quick walk-through of setting up a backup and recovery 
 
     ```shell
     docker-compose -f step02-backup-setup/docker-compose.yaml up -d
-    docker exec -it backup /bin/bash
+    docker exec -it -u admin backup /bin/bash
     ```
 
 2. Follow the instructions in [step02-backup-setup/README.md](step02-backup-setup/README.md)

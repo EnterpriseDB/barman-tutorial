@@ -1,5 +1,5 @@
 docker-compose up -d
-docker exec -it backup /bin/bash
+docker exec -it -u admin backup /bin/bash
 
 # Installing and Configuring Barman
 
@@ -10,8 +10,8 @@ This demonstration uses an Ubuntu environment, so the first step is to configure
 1. Install the postgresql-common package and other prerequesite software
 
     ```shell
-    apt update
-    apt install -y postgresql-common curl ca-certificates gnupg
+    sudo apt update
+    sudo apt install -y postgresql-common curl ca-certificates gnupg
     __OUTPUT__
     ...
     done.
@@ -19,7 +19,7 @@ This demonstration uses an Ubuntu environment, so the first step is to configure
 2. Use the script included in postgresql-common to configure the PGDG repository
 
     ```shell
-    sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh 
+    sudo sh /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh 
     __OUTPUT__
     This script will enable the PostgreSQL APT repository on apt.postgresql.org on
     your system. The distribution codename used will be jammy-pgdg.
@@ -43,7 +43,7 @@ This demonstration uses an Ubuntu environment, so the first step is to configure
 With the repository configured, we can use apt to install Barman and its dependencies:
 
 ```shell
-apt-get -y install barman
+sudo apt-get -y install barman
 __OUTPUT__
 ...
 Removing obsolete dictionary files:
@@ -57,7 +57,8 @@ For more details on installation (including instructions for other supported ope
 All the important details for a Barman server go into a server configuration file, by default located in `/etc/barman.d`. These are in the classic INI format, with relevant settings in a section named after the server we're going to back up. We'll also use that name for the configuration file itself. Since the server we intend to back up is named "pg", we'll use that:
 
 ```ini
-cat <<'EOF' >> /etc/barman.d/pg.conf
+cat <<'EOF' \
+| sudo tee /etc/barman.d/pg.conf > /dev/null
 [pg]
 description =  "Example of PostgreSQL Database (Streaming-Only)"
 conninfo = host=pg user=barman dbname=pagila
@@ -74,7 +75,7 @@ Note that this references the users (`barman` and `streaming_barman`) that we cr
 The installation process created a brand-new barman user on the backup server, so let's switch to that for the rest of this:
 
 ```shell
-su - barman
+sudo -i -u barman
 __OUTPUT__
 barman@backup:~$
 ```
