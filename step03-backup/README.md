@@ -5,7 +5,7 @@ docker exec -it -u barman backup /bin/bash
 
 With [the Barman server configured in our last step](step02-backup-setup), we can run a full backup (or "base backup").
 
-To run a full backup, we use [Barman's `backup` command](http://docs.pgbarman.org/release/3.9.0/#backup):
+To run a full backup, we use [Barman's `backup` command](http://docs.pgbarman.org/release/3.10.0/#backup):
 
 ```shell
 barman backup pg --wait

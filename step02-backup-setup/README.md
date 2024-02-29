@@ -50,7 +50,7 @@ Removing obsolete dictionary files:
 Processing triggers for libc-bin (2.35-0ubuntu3.6) ...
 ```
 
-For more details on installation (including instructions for other supported operating systems), see [the Installation section in the Barman guide](http://docs.pgbarman.org/release/3.9.0/#installation).
+For more details on installation (including instructions for other supported operating systems), see [the Installation section in the Barman guide](http://docs.pgbarman.org/release/3.10.0/#installation).
 
 ## Configuration
 
@@ -101,7 +101,7 @@ Also note that the database name [db_name] for the barman streaming user MUST be
 **Note the change in permissions** - this is necessary to protect the visibility of the file, and PostgreSQL will not use it unless permissions are restricted.
 
 !!! Tip Further reading
-For more details on configuration files, see: [Configuration](http://docs.pgbarman.org/release/3.9.0/#configuration) in the pgBarman guide.
+For more details on configuration files, see: [Configuration](http://docs.pgbarman.org/release/3.10.0/#configuration) in the pgBarman guide.
 !!!
 
 ### Verifying the configuration
@@ -155,7 +155,7 @@ Processing xlog segments from streaming for pg
         000000010000000000000002
 ```
 This forces WAL rotation and (with the `--archive` option) waits for the WAL to arrive. We'll give it 60 seconds (with the `--archive-timeout` option) to complete; 
-if it doesn't complete within that amount of time, try again. For more detail on these commands and their options, refer to [the Barman man page](https://docs.pgbarman.org/release/3.9.0/barman.1.html#commands).
+if it doesn't complete within that amount of time, try again. For more detail on these commands and their options, refer to [the Barman man page](https://docs.pgbarman.org/release/3.10.0/barman.1.html#commands).
 
 Once switch-wal has completed successfully, run the check again and you should see all checks passing:
 

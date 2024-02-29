@@ -44,7 +44,6 @@ Before we do anything else, let's make sure our current backup doesn't get touch
 
 With that done, let's instruct Barman to ssh into the database server and restore the backup. 
 
-
 1. Connect to pg and shut down the database cluster:
 
     ```shell
@@ -63,7 +62,7 @@ With that done, let's instruct Barman to ssh into the database server and restor
         && rm -rf /var/lib/postgresql/data/*"
     ```
 
-3. Use [Barman's recover command](http://docs.pgbarman.org/release/3.9.0/#recover) to connect to pg and restore the latest base backup 
+3. Use [Barman's recover command](http://docs.pgbarman.org/release/3.10.0/#recover) to connect to pg and restore the latest base backup 
 
     ```shell
     barman recover --remote-ssh-command 'ssh postgres@pg' \
